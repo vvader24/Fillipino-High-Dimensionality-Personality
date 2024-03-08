@@ -1,0 +1,79 @@
+---
+title: "Filipino Personality Structure - Data Analysis"
+format: 
+  html:
+   self-contained: true
+editor: visual
+toc: true
+toc-location: left
+---
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(jtools)
+library(fs)
+```
+
+# Call data
+```{r}
+#Function to call the right data for adjectives
+call_data <- function(dataType){
+
+  #dataType = "ips"
+  file_path <- dir_ls(here::here("data"), regexp = {{dataType}})
+  data <- rio::import(paste0(file_path), setclass = "tbl_df") %>%
+  rio::characterize() %>% 
+  janitor::clean_names() %>% # names
+  #Words between masindak:duwag
+   dplyr::select(contains("masinda"):contains("duwag"))
+  
+   data
+
+}
+data_Raw <-  call_data("raw") 
+data_Ips <- call_data("ips") 
+
+
+```
+
+
+
+## Data checks
+```{r}
+
+data_Raw %>% nrow() == data_Ips %>% nrow() #n participants
+data_Raw %>% ncol() == data_Ips %>% ncol() #n vars
+
+length(data_Raw %>% names) #total vars = 405
+length(data_Raw %>% names) == length(data_Ips %>% names)
+
+#any NA values?
+table(is.na(data_Raw)) 
+table(is.na(data_Raw)) 
+```
+
+# Parallel analysis
+
+## PA- Raw data
+```{r}
+PA_raw <- paran::paran(data_Raw, iterations = 100, 
+                           quietly = FALSE, status = FALSE, 
+                          all = FALSE, cfa = FALSE, graph = TRUE, 
+                          color = TRUE, col = c("black", "red", "blue"), 
+                          lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+                          file = "", width = 640, height = 640, 
+                          grdevice = "png", seed = 0)
+```
+
+## PA-Ipsatized data
+```{r}
+PA_Ips <- paran::paran(data_Ips, iterations = 100, 
+                           quietly = FALSE, status = FALSE, 
+                          all = FALSE, cfa = FALSE, graph = TRUE, 
+                          color = TRUE, col = c("black", "red", "blue"), 
+                          lty = c(1, 2, 3), lwd = 1, legend = TRUE, 
+                          file = "", width = 640, height = 640, 
+                          grdevice = "png", seed = 0)
+```
